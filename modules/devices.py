@@ -24,6 +24,8 @@ def has_mps() -> bool:
 
 
 def cuda_no_autocast(device_id=None) -> bool:
+    if not torch.cuda.is_available():
+        return True  # no CUDA: use manual_cast path, avoid touching torch.cuda
     if device_id is None:
         device_id = get_cuda_device_id()
     return (
@@ -33,6 +35,8 @@ def cuda_no_autocast(device_id=None) -> bool:
 
 
 def get_cuda_device_id():
+    if not torch.cuda.is_available():
+        return 0
     return (
         int(shared.cmd_opts.device_id)
         if shared.cmd_opts.device_id is not None and shared.cmd_opts.device_id.isdigit()
@@ -232,6 +236,8 @@ def autocast(disable=False):
 
 
 def without_autocast(disable=False):
+    if not torch.cuda.is_available():
+        return contextlib.nullcontext()
     return torch.autocast("cuda", enabled=False) if torch.is_autocast_enabled() and not disable else contextlib.nullcontext()
 
 

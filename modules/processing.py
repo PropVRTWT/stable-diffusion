@@ -28,8 +28,12 @@ import modules.images as images
 import modules.styles
 import modules.sd_models as sd_models
 import modules.sd_vae as sd_vae
-from ldm.data.util import AddMiDaS
-from ldm.models.diffusion.ddpm import LatentDepth2ImageDiffusion
+try:
+    from ldm.data.util import AddMiDaS
+    from ldm.models.diffusion.ddpm import LatentDepth2ImageDiffusion
+except ModuleNotFoundError:
+    AddMiDaS = None
+    LatentDepth2ImageDiffusion = type(None)  # no model is type(None); depth2img disabled (CompVis has no ldm.data.util)
 
 from einops import repeat, rearrange
 from blendmodes.blend import blendLayers, BlendType
@@ -302,6 +306,8 @@ class StableDiffusionProcessing:
         return txt2img_image_conditioning(self.sd_model, x, width or self.width, height or self.height)
 
     def depth2img_image_conditioning(self, source_image):
+        if AddMiDaS is None:
+            raise RuntimeError("Depth2img is not available: ldm.data.util (AddMiDaS) not found. Use Stability-AI ldm or install depth deps.")
         # Use the AddMiDaS helper to Format our source image to suit the MiDaS model
         transformer = AddMiDaS(model_type="dpt_hybrid")
         transformed = transformer({"jpg": rearrange(source_image[0], "c h w -> h w c")})
