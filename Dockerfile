@@ -67,4 +67,4 @@ RUN wget -q -O models/Stable-diffusion/juggernaut_reborn.safetensors \
 
 EXPOSE 8080
 
-CMD ["python", "launch.py", "--listen", "--port", "8080", "--api", "--skip-torch-cuda-test"]
+CMD ["python", "launch.py", "--listen", "--port", "8080", "--skip-torch-cuda-test"]
